@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Trial Room - AI Fashion Studio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght=300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Size selector styles */
+        .size-selector {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+        }
+        .size-selector-title {
+            font-size: 1rem;
+            color: var(--white);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .size-options {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .size-btn {
+            flex: 1;
+            padding: 15px 20px;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .size-btn:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--electric-blue);
+            transform: translateY(-2px);
+        }
+        .size-btn.active {
+            background: var(--gradient-2);
+            border-color: var(--electric-blue);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+        }
+        .size-btn .size-label {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        .size-btn .size-desc {
+            display: block;
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+        
+        /* Progressive loading styles */
+        .progressive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .progressive-item {
+            background: var(--dark-gray);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 3/4;
+        }
+        .progressive-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .progressive-item .loading-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+            color: var(--text-gray);
+        }
+        .progressive-item .item-label {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        .progressive-item.loading {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Navigation Bar -->
+    <nav class="floating-nav">
+        <div class="nav-content">
+            <div class="logo">
+                <i class="fas fa-sparkles"></i>
+                <span>VIRTUAL TRIAL</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#tryon" class="nav-link">Try-On</a></li>
+                <li><a href="#collection" class="nav-link">Collection</a></li>
+                <li><a href="#ai-stylist" class="nav-link">AI Stylist</a></li>
+                <li><a href="#profile" class="nav-link">Profile</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="hero-background">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+        </div>
+        
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="title-line">Experience Fashion.</span>
+                <span class="title-line gradient-text">Virtually Real.</span>
+            </h1>
+            <p class="hero-subtitle">AI-Powered Virtual Try-On with 360° Rotation & Smart Sizing</p>
+            
+            <div class="hero-cta">
+                <button class="cta-button primary" onclick="scrollToTryon()">
+                    <span>Try Outfit</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="cta-button secondary">
+                    <span>Watch Demo</span>
+                    <i class="fas fa-play"></i>
+                </button>
+            </div>
+
+            <div class="hero-3d-demo">
+                <div class="model-showcase">
+                    <div class="rotating-model">
+                        <i class="fas fa-tshirt"></i>
+                    </div>
+                    <div class="showcase-rings">
+                        <div class="ring ring-1"></div>
+                        <div class="ring ring-2"></div>
+                        <div class="ring ring-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-indicator">
+            <span>Scroll to explore</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- Main Try-On Section -->
+    <section id="tryon" class="tryon-section">
+        <div class="container">
+            <h2 class="section-title">
+                <span class="title-number">01</span>
+                Virtual Try-On Studio
+            </h2>
+            
+            <!-- Combined Try-On Mode (No mode selector needed) -->
+            <div id="combined-mode" class="tryon-mode active">
+                <div class="tryon-grid">
+                    <!-- Upload Section -->
+                    <div class="upload-panel">
+                        <h3 class="panel-title">Upload Your Images</h3>
+                        
+                        <div class="upload-container">
+                            <div class="upload-box" id="person-upload-combined">
+                                <input type="file" id="person-image-combined" accept="image/*" hidden>
+                                <label for="person-image-combined" class="upload-label">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <span class="upload-text">Your Photo</span>
+                                    <span class="upload-hint">Drag & drop or click to upload</span>
+                                </label>
+                                <div class="preview-container" style="display: none;">
+                                    <img id="person-preview-combined" alt="Person preview">
+                                    <button class="remove-btn" onclick="removeImageCombined('person')">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="upload-arrow">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+
+                            <div class="upload-box" id="clothing-upload-combined">
+                                <input type="file" id="clothing-image-combined" accept="image/*" hidden>
+                                <label for="clothing-image-combined" class="upload-label">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-tshirt"></i>
+                                    </div>
+                                    <span class="upload-text">Clothing Photo</span>
+                                    <span class="upload-hint">Drag & drop or click to upload</span>
+                                </label>
+                                <div class="preview-container" style="display: none;">
+                                    <img id="clothing-preview-combined" alt="Clothing preview">
+                                    <button class="remove-btn" onclick="removeImageCombined('clothing')">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Size Selector -->
+                        <div class="size-selector">
+                            <div class="size-selector-title">
+                                <i class="fas fa-ruler"></i>
+                                <span>Select Clothing Size:</span>
+                            </div>
+                            <div class="size-options">
+                                <button class="size-btn" data-size="S">
+                                    <span class="size-label">S</span>
+                                    <span class="size-desc">Tight Fit</span>
+                                </button>
+                                <button class="size-btn active" data-size="M">
+                                    <span class="size-label">M</span>
+                                    <span class="size-desc">Normal Fit</span>
+                                </button>
+                                <button class="size-btn" data-size="L">
+                                    <span class="size-label">L</span>
+                                    <span class="size-desc">Loose Fit</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button class="generate-btn" id="combined-generate-btn" disabled>
+                            <span class="btn-content">
+                                <i class="fas fa-magic"></i>
+                                <span>Generate 2D + 360° Views</span>
+                            </span>
+                            <span class="btn-loader" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <span>Generating...</span>
+                            </span>
+                        </button>
+
+                        <div class="generation-info">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Generates 8 views progressively • Results appear as they're ready</span>
+                        </div>
+                    </div>
+
+                    <!-- Progressive Results Section -->
+                    <div class="result-panel">
+                        <h3 class="panel-title">Progressive Results</h3>
+                        
+                        <div class="combined-viewer" id="combined-viewer">
+                            <div class="viewer-placeholder">
+                                <div class="placeholder-content">
+                                    <i class="fas fa-images"></i>
+                                    <p>2D + 360° views will appear here</p>
+                                    <span>Results show progressively as they're generated</span>
+                                </div>
+                            </div>
+                            
+                            <div class="viewer-result" id="combined-result" style="display: none;">
+                                <!-- Progressive Grid -->
+                                <div class="progressive-grid" id="progressive-grid">
+                                    <!-- Items will be added dynamically -->
+                                </div>
+
+                                <!-- GIF Display -->
+                                <div id="gif-container" style="display: none; margin-top: 20px;">
+                                    <h4 style="margin-bottom: 10px;">Animated 360° View:</h4>
+                                    <img id="result-gif" style="width: 100%; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                                </div>
+
+                                <!-- Actions -->
+                                <div class="result-actions" style="margin-top: 20px;">
+                                    <button class="action-btn" onclick="downloadAllResults()">
+                                        <i class="fas fa-download"></i>
+                                        <span>Download All</span>
+                                    </button>
+                                    <button class="action-btn" onclick="resetCombined()">
+                                        <i class="fas fa-redo"></i>
+                                        <span>Try Again</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Panel -->
+                        <div class="status-panel" id="status-panel-combined" style="display: none;">
+                            <div class="status-header">
+                                <i class="fas fa-tasks"></i>
+                                <span>Generation Progress</span>
+                            </div>
+                            <div class="status-content" id="status-content-combined"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Assistant -->
+    <div class="ai-assistant" id="ai-assistant">
+        <button class="assistant-toggle" onclick="toggleAssistant()">
+            <i class="fas fa-robot"></i>
+        </button>
+        <div class="assistant-panel" style="display: none;">
+            <div class="assistant-header">
+                <h4>AI Stylist</h4>
+                <button onclick="toggleAssistant()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="assistant-content">
+                <div class="assistant-message">
+                    <i class="fas fa-sparkles"></i>
+                    <p>Hi! I'm your AI fashion assistant. Try different sizes to see how they fit!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <i class="fas fa-sparkles"></i>
+                        <span>VIRTUAL TRIAL</span>
+                    </div>
+                    <p>Experience the future of fashion with AI-powered virtual try-on technology.</p>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#tryon">Try-On</a></li>
+                        <li><a href="#collection">Collection</a></li>
+                        <li><a href="#ai-stylist">AI Stylist</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-social">
+                    <h4>Follow Us</h4>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Virtual Trial Room. All rights reserved.</p>
+                <p>Powered by AI • Built with ❤️</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
